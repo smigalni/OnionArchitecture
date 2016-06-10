@@ -58,7 +58,7 @@ namespace OnionArchitectureExample
             var items = SetUpConfigItem();
 
             var watcherManager = new WatcherManager();
-            var resultat = watcherManager.CheckStatus(items.First(), StatusEnum.Good);
+            watcherManager.CheckStatus(items.First(), StatusEnum.Good);
 
             Assert.AreEqual(items.First().Status, StatusEnum.Good);
             Assert.AreNotEqual(items.First().Status, StatusEnum.None);
@@ -71,7 +71,7 @@ namespace OnionArchitectureExample
             var items = SetUpConfigItem();
 
             var watcherManager = new WatcherManager();
-            var resultat = watcherManager.CheckStatus(items.First(), StatusEnum.Bad);
+            watcherManager.CheckStatus(items.First(), StatusEnum.Bad);
 
             Assert.AreEqual(items.First().Status, StatusEnum.Bad);
             Assert.AreNotEqual(items.First().Status, StatusEnum.None);

@@ -5,7 +5,7 @@ using RethinkDb.Driver.Net;
 
 namespace OnionArchitectureExample
 {
-    public class WatcherDataStore //:  IWatcherDataStore
+    public class WatcherDataStore
     {
         public const string CrawlerTable = DataStoreConstants.CrawlerTable;
         public static RethinkDB R = RethinkDB.R;

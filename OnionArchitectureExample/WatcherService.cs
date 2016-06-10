@@ -25,7 +25,7 @@ namespace OnionArchitectureExample
         public void CheckStatus(ConfigItem item)
         {
             //var serviceStatus = GetServiceStatus(item.ServiceName, item.Interval);
-            var serviceStatus = StatusEnum.Bad;
+            var serviceStatus = StatusEnum.Good;
             var statusAction = _watcherManager.CheckStatus(item, serviceStatus);
             ApplyChanges(statusAction, item.Interval);
         }
