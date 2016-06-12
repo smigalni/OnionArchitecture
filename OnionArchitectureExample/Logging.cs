@@ -9,18 +9,23 @@ namespace OnionArchitectureExample
 {   
     public  class Logging
     {
-        public  void WriteToLog(StatusEnum serviceStatus, string serviceName, int interval)
+        public  void WriteToLog(Result<ServiceStatus> result, string serviceName, int interval)
         {
             //create new serilog configuration to get Source correct for service we are checking
             var log = Create(serviceName);
             var absolutvalue = Math.Abs(interval);
-            switch (serviceStatus)
+            var status = result.Value.Status;
+            switch (status)
             {
                 case StatusEnum.Bad:
-                    log.Error($"{serviceName} has status {serviceStatus}. There was no updates last {absolutvalue} minute(s)!");
+                    
+                    log.Error($"{serviceName} has status {status}. There was no updates last {absolutvalue} minute(s)!");
                     break;
                 case StatusEnum.Good:
-                    log.Information($"{serviceName} has status {serviceStatus}. Services works properly!");
+                    log.Information($"{serviceName} has status {status}. Service works properly!");
+                    break;
+                case StatusEnum.None:
+                    log.Warning($"{serviceName} has status {status}. There is a problem with connection with database. The exeception is: \n {result.Error}");
                     break;
                 default:
                     log.Fatal("Unexpected error. There is unknown service status!");

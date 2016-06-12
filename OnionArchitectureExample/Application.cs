@@ -24,11 +24,13 @@ namespace OnionArchitectureExample
                 new ConfigItem(
                     Constants.TrainPlanService,
                     StatusEnum.None,
-                    Constants.DefaultInterval),
+                    Constants.DefaultInterval,
+                    true),
                 new ConfigItem(
                     Constants.TrainSignalService,
                     StatusEnum.None,
-                    Constants.DefaultInterval)
+                    Constants.DefaultInterval,
+                    true)
             };
 
             while (true)
@@ -44,21 +46,28 @@ namespace OnionArchitectureExample
 
     public class ConfigItem
     {
-        public ConfigItem(string serviceName, StatusEnum status, int interval)
+        public ConfigItem(string serviceName, StatusEnum status, int interval, bool firstTime)
         {
             ServiceName = serviceName;
             Status = status;
             Interval = interval;
+            FirstTime = firstTime;
         }
         public string ServiceName { get; private set; }
 
         public StatusEnum Status { get; private set; }
 
         public int Interval { get; private set; }
+        public bool FirstTime { get; private set; }
 
         public void ChangeStatus(StatusEnum serviceStatus)
         {
             Status = serviceStatus;
+        }
+
+        public void SetFirstTimeToFalse()
+        {
+            FirstTime = false;
         }
     }
 }

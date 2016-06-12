@@ -8,7 +8,9 @@ namespace OnionArchitectureExample
         private readonly WatcherDataStore _watcherDataStore;
         private readonly WatcherManager _watcherManager;
 
-        public WatcherService(WatcherDataStore watcherDataStore, Logging logging,
+        public WatcherService(
+            WatcherDataStore watcherDataStore, 
+            Logging logging,
             WatcherManager watcherManager)
         {
             _watcherDataStore = watcherDataStore;
@@ -16,17 +18,14 @@ namespace OnionArchitectureExample
             _watcherManager = watcherManager;
         }
 
-        public StatusEnum GetServiceStatus(string serviceName, int interval)
+      public void CheckStatus(ConfigItem item)
         {
-            var status = _watcherDataStore.GetStatus(serviceName, interval) > 0 ? StatusEnum.Good : StatusEnum.Bad;
-            return status;
-        }
+            //husk hvis metode kan gi feil skal det returneres Result<T>
+            Result<ServiceStatus> serviceStatus = 
+                _watcherDataStore.GetNumberOfChangedDocuments(item.ServiceName, item.Interval);
 
-        public void CheckStatus(ConfigItem item)
-        {
-            //var serviceStatus = GetServiceStatus(item.ServiceName, item.Interval);
-            var serviceStatus = StatusEnum.Good;
-            var statusAction = _watcherManager.CheckStatus(item, serviceStatus);
+            var statusAction = _watcherManager.CheckStatus(item, item.ServiceName, serviceStatus);
+
             ApplyChanges(statusAction, item.Interval);
         }
 
@@ -35,9 +34,9 @@ namespace OnionArchitectureExample
             switch (action.Type)
             {
                 case ActionType.Update:
-                    _logging.WriteToLog(action.ServiceStatus, action.ServiceName, interval);
+                    _logging.WriteToLog(action.Result, action.ServiceName, interval);
                     _watcherDataStore.UpdateStatusEntity(
-                        StatusEntity.Create(action.ServiceName, DateTime.UtcNow, action.ServiceStatus,
+                        StatusEntity.Create(action.ServiceName, DateTime.UtcNow, action.Result.Value.Status,
                             action.ServiceName));
                     break;
 
@@ -49,6 +48,4 @@ namespace OnionArchitectureExample
             }
         }
     }
-
-  
 }

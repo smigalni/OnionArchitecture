@@ -1,35 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace OnionArchitectureExample
+﻿namespace OnionArchitectureExample
 {
     public class WatcherManager
     {
-        public StatusAction CheckStatus(ConfigItem item, StatusEnum serviceStatus)
+        public StatusAction CheckStatus(ConfigItem item, string serviceName, Result<ServiceStatus> serviceStatus)
         {
-            if (serviceStatus == item.Status)
+            var status = serviceStatus.Value.Status;
+            //hvis status er none (fikke ikke kontakt med database) og det er første gang da må vi ha mere logikk
+            if (item.FirstTime )
             {
-                return new StatusAction(item.ServiceName, serviceStatus, ActionType.DoNothing);
+                item.SetFirstTimeToFalse();
+                return new StatusAction(serviceStatus, serviceName, ActionType.Update);
             }
 
-            item.ChangeStatus(serviceStatus);
+            if (status == item.Status)
+            {
+                return new StatusAction(serviceStatus, serviceName, ActionType.DoNothing);
+            }
 
-            return new StatusAction(item.ServiceName, serviceStatus, ActionType.Update);
+            item.ChangeStatus(status);
+
+            return new StatusAction(serviceStatus, serviceName, ActionType.Update);
+
         }
     }
 
     public struct StatusAction
     {
-        public readonly string ServiceName;
-        public readonly StatusEnum ServiceStatus;
-        public readonly ActionType Type;
 
-        public StatusAction(string serviceName, StatusEnum serviceStatus, ActionType type)
+        public StatusAction(Result<ServiceStatus> result, string serviceName, ActionType type)
         {
             ServiceName = serviceName;
-            ServiceStatus = serviceStatus;
+            Result = result;
             Type = type;
         }
+
+        public ActionType Type { get; set; }
+        public Result<ServiceStatus> Result { get; set; }
+        public string ServiceName { get; set; }
     }
 
    

@@ -24,15 +24,30 @@ namespace OnionArchitectureExample
 
         public IConnection Connection { get; set; }
 
-        public virtual int GetStatus(string serviceName, int interval)
+        //utfordring her er at 
+        //for å ha ordentlig exception handlig dvs. ikke shut ned hele service pga koblingsproblemer med 
+        // db, må vi implementere extra logikk
+        // 
+        public virtual Result<ServiceStatus> GetNumberOfChangedDocuments(string serviceName, int interval)
         {
-            var result = DB.Table(CrawlerTable)
-                .Between(DateTime.UtcNow.AddMinutes(interval), R.Maxval()).OptArg("index", "updated")
-                .Filter(R.HashMap("type", serviceName))
-                .Count()
-                .RunAtom<int>(Connection);
+            try
+            {
+                var result = DB.Table(CrawlerTable)
+                        .Between(DateTime.UtcNow.AddMinutes(interval), R.Maxval()).OptArg("index", "updated")
+                        .Filter(R.HashMap("type", serviceName))
+                        .Count()
+                        .RunAtom<int>(Connection);
 
-            return result;
+                return Result.Ok(ServiceStatus.CreateServiceStatus(result));
+
+            }
+            catch (Exception ex)
+            {
+              return Result.Fail<ServiceStatus>(
+                  ServiceStatus.CreateServiceStatus(StatusEnum.None),
+                  $"Could not connect to RethinkDB. Failed with exception {ex}");
+
+            }
         }
 
         public void UpdateStatusEntity(StatusEntity document)
@@ -62,4 +77,7 @@ namespace OnionArchitectureExample
         }
     }
 
+    //Fordel med å bruke result i dette tilfelle er for å kontrollere hvis det skjer noe med RethinkDb kobling
+    // det er ikke nødvendig å kaste en exception, vi kan bare sette status til None som betyr i dette tilfelle at 
+    // kan ikke koble til database
 }
